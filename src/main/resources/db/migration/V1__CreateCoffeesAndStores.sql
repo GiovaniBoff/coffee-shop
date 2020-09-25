@@ -1,16 +1,16 @@
---CREATE TYPE CoffeeType AS ENUM (
---  'black',
---  'latte',
---  'with milk',
---  'cappuccino',
---  'americano',
---  'espresso',
---  'doppio',
---  'cortado',
---  'red eye',
---  'galão',
---  'lungo'
---);
+CREATE TYPE CoffeeType AS ENUM (
+  'black',
+  'latte',
+  'with milk',
+  'cappuccino',
+  'americano',
+  'espresso',
+  'doppio',
+  'cortado',
+  'red eye',
+  'galão',
+  'lungo'
+);
 
 CREATE TABLE "coffees" (
   "id" SERIAL PRIMARY KEY,
