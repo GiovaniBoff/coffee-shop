@@ -1,13 +1,14 @@
 package com.thiago_dev.coffee.repositories
 
+import com.thiago_dev.coffee.DTO.CoffeeDTO
 import com.thiago_dev.coffee.entities.Coffee
 
 import scala.concurrent.Future
 
 object CoffeesRepository {
-  def findAll(): Future[List[Coffee]] = Coffee.findAll()
+  def getPaged(page: Int): Future[List[Coffee]] = Coffee.findAll(page)
 
   def findOne(id: Int): Future[Option[Coffee]] = Coffee.findById(id)
 
-  def create: Coffee => Future[Int] = Coffee.save
+  def save: Either[Coffee, CoffeeDTO] => Future[Int] = Coffee.save
 }

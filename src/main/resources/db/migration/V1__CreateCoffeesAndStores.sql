@@ -1,21 +1,21 @@
---CREATE TYPE CoffeeType AS ENUM (
---  'black',
---  'latte',
---  'with milk',
---  'cappuccino',
---  'americano',
---  'espresso',
---  'doppio',
---  'cortado',
---  'red eye',
---  'galão',
---  'lungo'
---);
+CREATE TYPE CoffeeEnumType AS ENUM (
+  'black',
+  'latte',
+  'with milk',
+  'cappuccino',
+  'americano',
+  'espresso',
+  'doppio',
+  'cortado',
+  'red eye',
+  'galão',
+  'lungo'
+);
 
 CREATE TABLE "coffees" (
   "id" SERIAL PRIMARY KEY,
   "name" VARCHAR(80),
-  "coffeeType" CoffeeType,
+  "coffeeType" CoffeeEnumType,
   "price" NUMERIC
 );
 
@@ -35,3 +35,5 @@ CREATE TABLE "stock" (
 ALTER TABLE "stock" ADD FOREIGN KEY ("store_id") REFERENCES "stores" ("id");
 
 ALTER TABLE "stock" ADD FOREIGN KEY ("coffee_id") REFERENCES "coffees" ("id");
+
+CREATE INDEX "coffee_index" ON "coffees" ("name")

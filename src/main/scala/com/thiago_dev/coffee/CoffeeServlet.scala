@@ -1,6 +1,7 @@
 package com.thiago_dev.coffee
 
 import DTO.CoffeeDTO
+import com.thiago_dev.coffee.entities.Coffee
 import repositories.CoffeesRepository
 import com.thiago_dev.lib.Utils.Message
 import org.json4s.{DefaultFormats, Formats}
@@ -18,8 +19,9 @@ class CoffeeServlet
   before() { contentType = "application/json" }
 
   get("/") {
+    val page = if(params.contains("page")) params("page").toInt else 0
     for {
-      coffees <- CoffeesRepository.findAll()
+      coffees <- CoffeesRepository.getPaged(page)
     } yield Ok("data" -> coffees)
   }
 
@@ -39,14 +41,24 @@ class CoffeeServlet
 
   post("/") {
     try {
-      val coffeeDTO = parsedBody.extract[CoffeeDTO]
+      val coffeeDTO = parsedBody.extract[Coffee]
 
-      for { saved <- CoffeesRepository.create(coffeeDTO) }
+      //val coffee = Coffee(0, coffeeDTO.name.get)
+
+      for { saved <- CoffeesRepository.save(Left(coffeeDTO)) }
       yield Ok(
-        Message(s"Coffee Created successfully! status: $saved")
+        Message(s"$saved Coffee Created successfully!")
       )
     } catch {
       case exception: Exception => UnprocessableEntity(Message(exception.getMessage))
     }
+  }
+
+  patch("/") {
+    val coffee = parsedBody.extract[CoffeeDTO]
+
+    for {
+      updated <- CoffeesRepository.save(Right(coffee))
+    } yield updated
   }
 }
