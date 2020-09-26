@@ -10,37 +10,36 @@ case class Coffee(
   id: Long,
   name: String,
   coffeeType: CoffeeEnum.CoffeeEnum = CoffeeEnum.BLACK,
-  price: Double
+  price: Double,
+  cover_image_url: Option[String]
 )
 
 object Coffee {
-  type Coffees = Future[List[Coffee]];
+  type Coffees = Future[List[Coffee]]
 
-  def apply(id: Long, name: String, coffeeType: CoffeeEnum.CoffeeEnum, price: Double): Coffee = {
-    new Coffee(id, name, coffeeType, price)
-  }
-
-  def validAsCoffee(coffee: CoffeeDTO): Boolean = {
-    if(coffee.coffeeType.isEmpty) false;
-    else if(coffee.name.isEmpty) false;
-    else if(coffee.price.isEmpty) false;
-    else true;
-  }
-
-  implicit def convertFromDTO(coffeeDTO: CoffeeDTO): Coffee = {
-    if(validAsCoffee(coffeeDTO))
+  implicit def convertFromDTO(coffeeDTO: CoffeeDTO): Coffee =
       Coffee(
-        0,
-        coffeeDTO.name.get,
-        coffeeDTO.coffeeType.get,
-        coffeeDTO.price.get
+          0,
+          coffeeDTO.name.get,
+          coffeeDTO.coffeeType.getOrElse(CoffeeEnum.BLACK),
+          coffeeDTO.price.get,
+          coffeeDTO.cover_image_url
       )
-    else throw new Exception(s"Can't convert from ${coffeeDTO.getClass.getTypeName} to Coffee")
+
+  def apply(id: Long, name: String,
+            coffeeType: CoffeeEnum.CoffeeEnum, price: Double, cover_image_url: Option[String]): Coffee = {
+    new Coffee(id, name, coffeeType, price, cover_image_url)
   }
 
   def save(coffee: Coffee): Future[Int] = {
-    val (id, name, coffeeType, price) = Coffee.unapply(coffee).get;
-    sql"""INSERT INTO coffees (name, "coffeeType", price) VALUES ($name, $coffeeType::CoffeeType, $price)"""
+    val (id, name, coffeeType, price, cover_image_url) = Coffee.unapply(coffee).get
+    sql"""
+    INSERT INTO coffees (name, "coffeeType", price, cover_image_url) VALUES (
+         $name,
+         $coffeeType::CoffeeType,
+         $price,
+         $cover_image_url
+    )"""
     .update.run.transact(transactor).unsafeToFuture()
   }
 

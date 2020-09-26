@@ -6,5 +6,6 @@ case class CoffeeDTO(
   id: Option[Int],
   name: Option[String],
   coffeeType: Option[CoffeeEnum],
-  price: Option[Double]
+  price: Option[Double],
+  cover_image_url: Option[String]
 )
