@@ -1,4 +1,4 @@
-package com.thiago_dev.lib
+package com.lib
 
 object Utils {
   case class Message(body: String)

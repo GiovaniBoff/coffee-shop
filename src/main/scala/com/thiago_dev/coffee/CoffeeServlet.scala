@@ -3,7 +3,7 @@ package com.thiago_dev.coffee
 import DTO.CoffeeDTO
 import com.thiago_dev.coffee.entities.Coffee
 import repositories.CoffeesRepository
-import com.thiago_dev.lib.Utils.Message
+import com.lib.Utils.Message
 import org.json4s.{DefaultFormats, Formats}
 import org.scalatra._
 import json._
@@ -41,11 +41,13 @@ class CoffeeServlet
 
   post("/") {
     try {
-      val coffeeDTO = parsedBody.extract[Coffee]
+      val (id, name, coffeeType, price, cover_image_url) =
+        CoffeeDTO.unapply(parsedBody.extract[CoffeeDTO]).get
 
-      //val coffee = Coffee(0, coffeeDTO.name.get)
+      val coffee =
+        Coffee(0, name.get, coffeeType.get, price.get, cover_image_url)
 
-      for { saved <- CoffeesRepository.save(Left(coffeeDTO)) }
+      for { saved <- CoffeesRepository.save(Left(coffee)) }
       yield Ok(
         Message(s"$saved Coffee Created successfully!")
       )
@@ -56,9 +58,16 @@ class CoffeeServlet
 
   patch("/") {
     val coffee = parsedBody.extract[CoffeeDTO]
-
-    for {
-      updated <- CoffeesRepository.save(Right(coffee))
-    } yield updated
+    try {
+      for {
+        updated <- CoffeesRepository.save(Right(coffee))
+      } yield Ok(
+        Message(s"$updated object updated")
+      )
+    } catch {
+      case exception: Exception => UnprocessableEntity(
+        Message(exception.getMessage)
+      )
+    }
   }
 }
