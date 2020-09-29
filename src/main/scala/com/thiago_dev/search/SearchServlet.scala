@@ -2,8 +2,7 @@ package com.thiago_dev.search
 
 import com.thiago_dev.search.DTO.SearchDTO
 import org.json4s.{DefaultFormats, Formats}
-import org.scalatra.{FutureSupport, ScalatraServlet}
-import org.scalatra.json.JacksonJsonSupport
+import org.scalatra._, json.JacksonJsonSupport
 
 import scala.concurrent.ExecutionContext
 

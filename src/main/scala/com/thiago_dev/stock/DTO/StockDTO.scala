@@ -3,11 +3,11 @@ package com.thiago_dev.stock.DTO
 import com.thiago_dev.coffee.entities.CoffeeEnum.CoffeeEnum
 
 case class StockDTO(
-  store_index: Long,
-  quantity: Int,
-  id: Long,
+  store_id: Long,
+  coffee_quantity: Int,
+  coffee_id: Long,
   name: String,
   coffeeType: CoffeeEnum,
-  price: Double,
-  cover_image_url: String
+  cover_image_url: String,
+  price: Double
 )

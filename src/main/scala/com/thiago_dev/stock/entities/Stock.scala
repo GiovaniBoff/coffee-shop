@@ -3,7 +3,7 @@ package com.thiago_dev.stock.entities
 import com.thiago_dev.coffee.entities.Coffee
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.lib.config.DoobieConfig.transactor
+import com.thiago_dev.config.DoobieConfig.transactor
 import com.thiago_dev.stock.DTO.{StockDTO, StockRowDTO}
 import doobie._
 import implicits._
@@ -17,31 +17,34 @@ case class Stock(
 )
 
 object Stock {
-  implicit private def convertFromDTO(stockList: List[StockDTO]): List[Stock] = {
-    stockList.map( stockDTO => {
-      Stock(
-        store_id = stockDTO.store_index,
-        coffee = Coffee(
-          stockDTO.id,
-          stockDTO.name,
-          stockDTO.coffeeType,
-          stockDTO.price,
-          Some(stockDTO.cover_image_url)
-        ),
-        quantity = stockDTO.quantity
-      )
-    })
+  type StockObject = List[Stock]
+  type StockList = List[StockDTO]
+
+  private def stockFactory(stockDTO: StockDTO): Stock = {
+    Stock(
+      stockDTO.store_id,
+      Coffee(
+        stockDTO.coffee_id,
+        stockDTO.name,
+        stockDTO.coffeeType,
+        stockDTO.price,
+        Some(stockDTO.cover_image_url)
+      ),
+      stockDTO.coffee_quantity
+    )
   }
 
-  private def loadStock(storeId: Long): Future[List[StockDTO]] = {
-    sql"SELECT * FROM coffeestock WHERE store_index = $storeId"
-      .query[StockDTO]
-      .to[List]
-      .transact(transactor)
+  implicit private def convertFromDTO(stockList: StockList): StockObject = {
+    stockList.map(stockFactory)
+  }
+
+  private def loadStock(storeId: Long): Future[StockList] = {
+    sql"SELECT * FROM coffeestock WHERE store_id = $storeId"
+      .query[StockDTO].to[List].transact(transactor)
       .unsafeToFuture()
   }
 
-  def getStoreStock(storeId: Long): Future[List[Stock]] = {
+  def getStoreStock(storeId: Long): Future[StockObject] = {
     for {
       stockList <- loadStock(storeId)
     } yield stockList

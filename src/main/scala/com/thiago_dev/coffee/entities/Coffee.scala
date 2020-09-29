@@ -2,7 +2,7 @@ package com.thiago_dev.coffee.entities
 
 import com.thiago_dev.coffee.DTO.CoffeeDTO
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.lib.config.DoobieConfig.transactor
+import com.thiago_dev.config.DoobieConfig.transactor
 import doobie._
 import implicits._
 

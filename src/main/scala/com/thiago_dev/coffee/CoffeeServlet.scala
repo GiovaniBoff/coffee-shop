@@ -3,7 +3,7 @@ package com.thiago_dev.coffee
 import DTO.CoffeeDTO
 import com.thiago_dev.coffee.entities.Coffee
 import repositories.CoffeesRepository
-import com.lib.Utils.Message
+import com.thiago_dev.lib.Utils.Message
 import org.json4s.{DefaultFormats, Formats}
 import org.scalatra._
 import json._

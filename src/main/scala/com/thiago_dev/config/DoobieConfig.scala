@@ -1,4 +1,4 @@
-package com.lib.config
+package com.thiago_dev.config
 
 import cats.effect.{ContextShift, IO}
 import doobie.Transactor

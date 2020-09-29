@@ -1,7 +1,7 @@
 package com.thiago_dev.stock.repositories
 
 import com.thiago_dev.stock.DTO.StockRowDTO
-import com.thiago_dev.stock.entities.Stock
+import com.thiago_dev.stock.entities.Stock, Stock.StockObject
 
 import scala.concurrent.Future
 
@@ -12,7 +12,5 @@ object StockRepository {
   def save: StockRowDTO => Future[Int] =
     Stock.save
 
-  def findAll: Int = {
-    1
-  }
+  def getStoreStock(storeId: Int): Future[StockObject] = Stock.getStoreStock(storeId)
 }
