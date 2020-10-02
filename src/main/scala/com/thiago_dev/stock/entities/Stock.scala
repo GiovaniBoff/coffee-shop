@@ -50,7 +50,7 @@ object Stock {
   }
 
   def create(stockRowDTO: StockRowDTO): Future[Int] = {
-    val (id, store_id, coffee_id, quantity) = StockRowDTO.unapply(stockRowDTO).get
+    val (_, store_id, coffee_id, quantity) = StockRowDTO.unapply(stockRowDTO).get
     sql"""
       INSERT INTO stock (store_id, coffee_id, quantity)
       VALUES ($store_id, $coffee_id, $quantity)
