@@ -22,98 +22,73 @@ object Stock {
 
   private def stockFactory(stockDTO: StockDTO): Stock = {
     Stock(
-      stockDTO.store_id,
-      Coffee(
-        stockDTO.coffee_id,
-        stockDTO.name,
-        stockDTO.coffeeType,
-        stockDTO.price,
-        Some(stockDTO.cover_image_url)
+      store_id = stockDTO.store_id,
+      coffee = Coffee(
+        price = stockDTO.price,
+        id = stockDTO.coffee_id,
+        name = stockDTO.name,
+        coffeeType = stockDTO.coffeeType,
+        cover_image_url = Some(stockDTO.cover_image_url)
       ),
-      stockDTO.coffee_quantity
+      quantity = stockDTO.coffee_quantity
     )
   }
 
-  implicit private def convertFromDTO(stockList: StockList): StockObject = {
+  implicit def convertFromDTO(stockList: StockList): StockObject = {
     stockList.map(stockFactory)
   }
 
   private def loadStock(storeId: Long): Future[StockList] = {
     sql"SELECT * FROM coffeestock WHERE store_id = $storeId"
-      .query[StockDTO].to[List].transact(transactor)
-      .unsafeToFuture()
+      .query[StockDTO].to[List].transact(transactor).unsafeToFuture()
   }
 
   def getStoreStock(storeId: Long): Future[StockObject] = {
     for {
-      stockList <- loadStock(storeId)
-    } yield stockList
+      storeList <- loadStock(storeId)
+    } yield storeList
   }
 
-  def save(stockRowDTO: StockRowDTO): Future[Int] = {
-    if(stockRowDTO.id.isEmpty) createStock(stockRowDTO)
-    else updateStockQuantity(stockRowDTO)
-  }
-
-  private def createStock(stockRowDTO: StockRowDTO): Future[Int] = {
+  def create(stockRowDTO: StockRowDTO): Future[Int] = {
     val (id, store_id, coffee_id, quantity) = StockRowDTO.unapply(stockRowDTO).get
     sql"""
-       INSERT INTO stock (store_id, coffee_id, quantity)
-       VALUES ($store_id, $coffee_id, $quantity)
-     """.update.run.transact(transactor).unsafeToFuture()
-  }
-
-  private def updateStockQuantity(stockRowDTO: StockRowDTO): Future[Int] = {
-    val (id, store_id, coffee_id, quantity) = StockRowDTO.unapply(stockRowDTO).get
-    sql"""
-       UPDATE stock
-       SET
-        quantity = $quantity
-       WHERE stock.id = $id
-     """.update.run.transact(transactor).unsafeToFuture()
+      INSERT INTO stock (store_id, coffee_id, quantity)
+      VALUES ($store_id, $coffee_id, $quantity)
+    """.update.run.transact(transactor).unsafeToFuture()
   }
 
   def findById(stockId: Long): Future[Option[StockRowDTO]] = {
     sql"SELECT * FROM stock WHERE id = $stockId"
-      .query[StockRowDTO]
-      .option
-      .transact(transactor)
-      .unsafeToFuture()
+      .query[StockRowDTO].option.transact(transactor).unsafeToFuture()
   }
 
-  def incrementQuantity(stockId: Long, incrementBy: Int): Future[Int] = {
+  def updateStockQuantity(stockId: Long, quantity: Int, increment: Boolean = true): Future[Int] = {
     for {
       stock <- findById(stockId)
-    } yield {
-      if(stock.isEmpty) throw new Exception("Cannot find this stock")
-      val stockDTO = stock.get
+      updated <- {
+        if(stock.isEmpty) {
+          new Exception("Cannot get this stock")
+        }
+        val stockQuantity = stock.get.quantity
 
-      val incremented = stockDTO.quantity + incrementBy
+        val newQuantity = if(increment) {
+          stockQuantity + quantity
+        } else {
+          if(stockQuantity > quantity) {
+            stockQuantity - quantity
+          }
+          else {
+            quantity % stockQuantity
+          }
+        }
 
-      save(stockDTO.copy( quantity = incremented ))
+        sql"""
+          UPDATE stock SET quantity = $newQuantity
+          WHERE stock.id = $stockId
+        """.update.run.transact(transactor).unsafeToFuture()
 
-      incremented
-    }
-  }
-
-  def decrementQuantity(stockId: Long, decrementBy: Int): Future[Int] = {
-    for {
-      stock <- findById(stockId)
-    } yield {
-      if(stock.isEmpty) throw new Exception("Cannot find this stock")
-      val stockDTO = stock.get
-
-      val decremented = if(stockDTO.quantity >= decrementBy) {
-        stockDTO.quantity - decrementBy
-      } else {
-        stockDTO.quantity % decrementBy
+        Future(newQuantity)
       }
-
-      save(stockDTO.copy( quantity = decremented ))
-
-      return Future {
-        decremented
-      }
-    }
+    } yield updated
   }
 }

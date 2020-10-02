@@ -28,9 +28,9 @@ libraryDependencies ++= Seq(
   "org.scalatra"            %% "scalatra-json"        % ScalatraVersion,
   "org.json4s"              %% "json4s-jackson"       % Json4sVersion,
   "org.typelevel"           %% "cats-core"            % CatsVersion,
-  "org.typelevel"           %% "cats-effect"          % "2.2.0",
   "org.tpolecat"            %% "doobie-core"          % DoobieVersion,
   "org.tpolecat"            %% "doobie-postgres"      % DoobieVersion,
+  "org.typelevel"           %% "cats-effect"          % "2.2.0",
   "org.postgresql"          %  "postgresql"           % "9.4-1206-jdbc42",
 )
 

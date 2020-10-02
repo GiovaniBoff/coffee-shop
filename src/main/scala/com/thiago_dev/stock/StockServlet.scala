@@ -11,6 +11,7 @@ import scala.concurrent.ExecutionContext
 class StockServlet extends ScalatraServlet
   with JacksonJsonSupport
   with FutureSupport {
+  case class Quantity( quantity: Int )
 
   override protected implicit def executor: ExecutionContext = ExecutionContext.global
   override protected implicit def jsonFormats: Formats = DefaultFormats
@@ -18,15 +19,13 @@ class StockServlet extends ScalatraServlet
   before() { contentType = "application/json" }
 
   get("/") {
-    val storeId = if(params.contains("storeId")) params.get("storeId").get.toInt else 0
-
-    if(storeId == 0) {
-      NotFound(Message(
-        """You should pass a valid storeId
-          |for viewing this data""".stripMargin
-      ))
+    if(!params.contains("storeId")) {
+      NotFound(
+        Message("You should pass a valid storeId")
+      )
     } else {
-      for {
+      val storeId = params.get("storeId").get.toLong
+        for {
         stock <- StockRepository.getStoreStock(storeId)
       } yield "stock" -> stock
     }
@@ -34,5 +33,18 @@ class StockServlet extends ScalatraServlet
 
   post("/") {
 
+  }
+
+  patch("/stockQuantity") {
+    if(!params.contains("stockId")) {
+      NotFound(
+        Message("You should pass a valid stockId")
+      )
+    } else {
+      val stockId = params("stockId").toLong
+      val requestBody = parsedBody.extract[Quantity]
+
+      StockRepository.update(stockId, requestBody.quantity)
+    }
   }
 }

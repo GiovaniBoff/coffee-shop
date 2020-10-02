@@ -6,11 +6,12 @@ import com.thiago_dev.stock.entities.Stock, Stock.StockObject
 import scala.concurrent.Future
 
 object StockRepository {
-  def findOne(stockId: Long): Future[Option[StockRowDTO]] =
-    Stock.findById(stockId)
+  def findOne: Long => Future[Option[StockRowDTO]] = Stock.findById
 
-  def save: StockRowDTO => Future[Int] =
-    Stock.save
+  def save: StockRowDTO => Future[Int] = Stock.create
 
-  def getStoreStock(storeId: Int): Future[StockObject] = Stock.getStoreStock(storeId)
+  def getStoreStock: Long => Future[StockObject] = Stock.getStoreStock
+
+  def update(stockId: Long, quantity: Int, increment: Boolean = true): Future[Int] =
+    Stock.updateStockQuantity(stockId, quantity, increment)
 }
