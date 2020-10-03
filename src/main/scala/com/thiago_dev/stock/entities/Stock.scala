@@ -1,13 +1,11 @@
 package com.thiago_dev.stock.entities
 
 import com.thiago_dev.coffee.entities.Coffee
-
-import scala.concurrent.ExecutionContext.Implicits.global
 import com.thiago_dev.config.DoobieConfig.transactor
-import com.thiago_dev.stock.DTO.{StockDTO, StockRowDTO}
-import doobie._
-import implicits._
+import com.thiago_dev.stock.DTO.{StockDTO, StockRowDTO, UpdateStockDTO}
 
+import doobie._, implicits._
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 case class Stock(
@@ -62,33 +60,35 @@ object Stock {
       .query[StockRowDTO].option.transact(transactor).unsafeToFuture()
   }
 
-  def updateStockQuantity(stockId: Long, quantity: Int, increment: Boolean = true): Future[Int] = {
+  def updateStockQuantity(stockId: Long, quantity: Int, increment: Boolean = true): Future[UpdateStockDTO] = {
     for {
       stock <- findById(stockId)
-      updated <- {
-        if(stock.isEmpty) {
-          new Exception("Cannot get this stock")
-        }
-        val stockQuantity = stock.get.quantity
+      remainsOnStock <- {
+        if(stock.isEmpty) throw new Exception("Cannot get this stock")
 
-        val newQuantity = if(increment) {
-          stockQuantity + quantity
+        val stockQuantity: Int = stock.get.quantity
+
+        if(increment) {
+          Future(stockQuantity + quantity)
         } else {
           if(stockQuantity > quantity) {
-            stockQuantity - quantity
-          }
-          else {
-            quantity % stockQuantity
+            Future(stockQuantity - quantity)
+          } else {
+            throw new Exception(
+              s"""Cannot update this object,
+                 |stock quantity is under expected: $stockQuantity""".stripMargin)
           }
         }
-
+      }
+      sqlUpdate <- {
         sql"""
-          UPDATE stock SET quantity = $newQuantity
+          UPDATE stock SET quantity = $remainsOnStock
           WHERE stock.id = $stockId
         """.update.run.transact(transactor).unsafeToFuture()
-
-        Future(newQuantity)
       }
-    } yield updated
+      response <- {
+        Future(UpdateStockDTO("Updated successfully", remainsOnStock))
+      }
+    } yield response
   }
 }

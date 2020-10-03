@@ -15,7 +15,7 @@ name := "Coffee Shop"
 
 version := "0.1.0-SNAPSHOT"
 
-scalaVersion := "2.12.3"
+scalaVersion := "2.12.12"
 
 resolvers += Classpaths.typesafeReleases
 

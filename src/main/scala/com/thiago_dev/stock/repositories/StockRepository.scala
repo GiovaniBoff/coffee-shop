@@ -1,7 +1,8 @@
 package com.thiago_dev.stock.repositories
 
-import com.thiago_dev.stock.DTO.StockRowDTO
-import com.thiago_dev.stock.entities.Stock, Stock.StockObject
+import com.thiago_dev.stock.DTO.{StockRowDTO, UpdateStockDTO}
+import com.thiago_dev.stock.entities.Stock
+import Stock.StockObject
 
 import scala.concurrent.Future
 
@@ -12,6 +13,6 @@ object StockRepository {
 
   def getStoreStock: Long => Future[StockObject] = Stock.getStoreStock
 
-  def update(stockId: Long, quantity: Int, increment: Boolean = true): Future[Int] =
+  def update(stockId: Long, quantity: Int, increment: Boolean = true): Future[UpdateStockDTO] =
     Stock.updateStockQuantity(stockId, quantity, increment)
 }
