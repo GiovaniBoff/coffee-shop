@@ -8,10 +8,16 @@ import scala.concurrent.ExecutionContext
 object DoobieConfig {
   implicit val executor: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 
-  val transactor:  Transactor.Aux[IO, Unit] = Transactor.fromDriverManager[IO](
+  lazy val db = Map(
+    "url"       -> sys.env.getOrElse("DATABASE_URL", "postgresql://localhost:5432/coffee_shop"),
+    "user"      -> sys.env.getOrElse("DATABASE_USER", "postgres"),
+    "password"  -> sys.env.getOrElse("DATABASE_PASSWORD", "123")
+  )
+
+  lazy val transactor:  Transactor.Aux[IO, Unit] = Transactor.fromDriverManager[IO](
     driver = "org.postgresql.Driver",
-    url    = "jdbc:postgresql://localhost:5432/coffee_shop",
-    user   = "postgres",
-    pass   = "123"
+    url    = s"jdbc:${db("url")}",
+    user   = db("user"),
+    pass   = db("password")
   )
 }

@@ -21,7 +21,10 @@ object Store {
       .query[Store].option.transact(transactor).unsafeToFuture()
   }
 
-  def paged(page: Int): Unit = {}
+  def paged(page: Int): Unit = {
+    sql"SELECT * FROM stores LIMIT 10 OFFSET ${page * 10}"
+      .query[Store].option.transact(transactor).unsafeToFuture()
+  }
 
   def create(store: Store): Unit = {}
 

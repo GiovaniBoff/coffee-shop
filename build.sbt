@@ -1,3 +1,4 @@
+import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
 
 val ScalatraVersion     = "2.7.0"
 val Json4sVersion       = "3.5.2"
@@ -23,7 +24,8 @@ libraryDependencies ++= Seq(
   "org.scalatra"            %% "scalatra"             % ScalatraVersion,
   "org.scalatra"            %% "scalatra-scalatest"   % ScalatraVersion     % "test",
   "ch.qos.logback"          %  "logback-classic"      % LogbackVersion      % "runtime",
-  "org.eclipse.jetty"       %  "jetty-webapp"         % JettyVersion        % "container",
+  "org.eclipse.jetty"       %  "jetty-webapp"         % JettyVersion        % "compile;container",
+  "org.eclipse.jetty"       %  "jetty-plus"           % JettyVersion        % "compile;container",
   "javax.servlet"           %  "javax.servlet-api"    % ServletApiVersion   % "provided",
   "org.scalatra"            %% "scalatra-json"        % ScalatraVersion,
   "org.json4s"              %% "json4s-jackson"       % Json4sVersion,
@@ -36,11 +38,18 @@ libraryDependencies ++= Seq(
 
 scalacOptions += "-Ypartial-unification"
 
+enablePlugins(JavaAppPackaging)
 enablePlugins(SbtTwirl)
 enablePlugins(ScalatraPlugin)
 enablePlugins(FlywayPlugin)
 
-flywayUrl               := "jdbc:postgresql://localhost:5432/coffee_shop"
-flywayUser              := "postgres"
-flywayPassword          := "123"
+lazy val db = Map(
+  "url"       -> sys.env.getOrElse("DATABASE_URL", "postgresql://localhost:5432/coffee_shop"),
+  "user"      -> sys.env.getOrElse("DATABASE_USER", "postgres"),
+  "password"  -> sys.env.getOrElse("DATABASE_PASSWORD", "123")
+)
+
+flywayUrl               := s"jdbc:${db("url")}"
+flywayUser              := db("user")
+flywayPassword          := db("password")
 flywayBaselineOnMigrate := true
