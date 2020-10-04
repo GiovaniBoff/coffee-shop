@@ -10,6 +10,12 @@ val CatsVersion         = "2.0.0"
 
 lazy val root = project.in(file("."))
 
+lazy val db = Map(
+  "url"       -> sys.env.getOrElse("DATABASE_URL", "postgresql://localhost:5432/coffee_shop"),
+  "user"      -> sys.env.getOrElse("DATABASE_USER", "postgres"),
+  "password"  -> sys.env.getOrElse("DATABASE_PASSWORD", "123")
+)
+
 organization := "com.thiago_dev"
 
 name := "Coffee Shop"
@@ -43,11 +49,7 @@ enablePlugins(SbtTwirl)
 enablePlugins(ScalatraPlugin)
 enablePlugins(FlywayPlugin)
 
-lazy val db = Map(
-  "url"       -> sys.env.getOrElse("DATABASE_URL", "postgresql://localhost:5432/coffee_shop"),
-  "user"      -> sys.env.getOrElse("DATABASE_USER", "postgres"),
-  "password"  -> sys.env.getOrElse("DATABASE_PASSWORD", "123")
-)
+
 
 flywayUrl               := s"jdbc:${db("url")}"
 flywayUser              := db("user")
