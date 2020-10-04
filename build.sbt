@@ -53,3 +53,4 @@ flywayUrl               := s"jdbc:${db("url")}"
 flywayUser              := db("user")
 flywayPassword          := db("password")
 flywayBaselineOnMigrate := true
+
