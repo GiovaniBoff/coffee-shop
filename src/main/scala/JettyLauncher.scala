@@ -4,7 +4,7 @@ import org.eclipse.jetty.webapp.WebAppContext
 import org.scalatra.servlet.ScalatraListener
 
 object JettyLauncher extends App {
-  val port = sys.env.getOrElse("PORT", 8080).asInstanceOf[Int]
+  val port = sys.env.getOrElse("PORT", 8080).toString.toInt
   val server = new Server(port)
   val context = new WebAppContext()
 

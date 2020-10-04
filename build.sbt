@@ -24,6 +24,8 @@ version := "0.1.0-SNAPSHOT"
 
 scalaVersion := "2.12.12"
 
+maintainer := "tfarias@protonmail.com"
+
 resolvers += Classpaths.typesafeReleases
 
 libraryDependencies ++= Seq(
@@ -48,8 +50,6 @@ enablePlugins(JavaAppPackaging)
 enablePlugins(SbtTwirl)
 enablePlugins(ScalatraPlugin)
 enablePlugins(FlywayPlugin)
-
-
 
 flywayUrl               := s"jdbc:${db("url")}"
 flywayUser              := db("user")
