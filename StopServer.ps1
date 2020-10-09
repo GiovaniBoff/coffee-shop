@@ -1,8 +1,5 @@
-﻿Function Get-JavaServerId 
-    (
-        $port
-    ) {
-    
+﻿Function Get-JavaServerId ($port) 
+{
     (
         Get-Process -Id (Get-NetTCPConnection -LocalPort $port).OwningProcess | Select Id
     ).Id

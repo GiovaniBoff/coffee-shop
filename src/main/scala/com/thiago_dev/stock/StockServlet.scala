@@ -10,8 +10,7 @@ import com.thiago_dev.lib.Utils.Message
 import com.thiago_dev.stock.repositories.StockRepository
 
 class StockServlet extends ScalatraServlet
-  with JacksonJsonSupport
-  with FutureSupport {
+  with JacksonJsonSupport with FutureSupport {
 
   override protected implicit def executor: ExecutionContext = ExecutionContext.global
   override protected implicit def jsonFormats: Formats = DefaultFormats
